@@ -12,10 +12,10 @@ Additional problem is storing extracted formats data in Power Query for further 
 ## Work plan
 
 1. Sheet structure: 
-    - [rows outline levels](../../tree/master/RowsOutline)
-    - columns outline levels
-    - outline state (collapsed or not)
-    - visibility state of rows/columns.
+    - [rows outline levels](../../tree/master/RowsOutline),
+    - columns outline levels,
+    - extended rows state (visibility, spans, outlines, collapsed, etc.),
+    - extended columns state.
 2. Cell indents and alignment
 3. Cell number formats
 4. Cell color
