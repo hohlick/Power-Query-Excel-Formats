@@ -15,7 +15,7 @@ As Power Query import data from Excel spreadsheet into a table structure, then r
         ) as table
 
 ### Code:
-[fnGetRowsOutline](../RowsOutline/fnGetRowsOutline.pq)
+[ExcelWorksheetsRowOutlines.pq](../RowsOutline/ExcelWorksheetsRowOutlines.pq)
 
 ### Description:
 
