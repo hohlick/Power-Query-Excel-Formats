@@ -101,7 +101,8 @@ in
             RowIndTable = Table.AddIndexColumn(#table(type table [RowNumber=Int64.Type], RowIndices), "Index"),
             ExpandMissedRows = Table.Join(RowIndTable, {"RowNumber"}, Typed, {"RowN"},JoinKind.LeftOuter),
             RemovedOtherColumns1 = Table.SelectColumns(ExpandMissedRows,{"Index", "outlineLevel"}),
-            Result = if Table.IsEmpty(sheetDataTable) then #table(type table [Index = number, outlineLevel = Int64.Type],{}) else RemovedOtherColumns1
+            PreSort = Table.Sort(RemovedOtherColumns1, {"Index"}),
+            Result = if Table.IsEmpty(sheetDataTable) then #table(type table [Index = number, outlineLevel = Int64.Type],{}) else PreSort
         in
             Result,
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -165,13 +166,15 @@ UnZipped = Table.Buffer(fnUnZip(File.Contents(FullPath))),
 
 // invoke RowsOutline function to get separate index+outlineLevel table
     AddOutlineTable = Table.AddColumn(MergedRelationsTarget, "RowsOutline", each fnRowsOutline([#"Attribute:Target"]), type table),
-    // Clean table
+
+// Clean table
     RemovedColumns = Table.RemoveColumns(AddOutlineTable,{"Index", "Attribute:Id", "Attribute:Target", "Attribute:name", "Attribute:sheetId", "Attribute:id"}),
 
 // join [AddOutlineTable] and [Data] by rows index
-    AddedRowsOutline = Table.AddColumn(RemovedColumns, "DataWithOutline", each Table.RemoveColumns(Table.Join([RowsOutline], {"Index"}, Table.AddIndexColumn([Data],"Index"), {"Index"}),{"Index"}), type table),
+    AddedRowsOutline = Table.AddColumn(RemovedColumns, "DataWithOutline", each Table.RemoveColumns(Table.Join([RowsOutline], {"Index"}, Table.AddIndexColumn([Data],"Index"), {"Index"}), {"Index"}), type table),
 
 // add outlines to Data or not
     Result = if AddOutlinesToData or AddOutlinesToData = null then AddedRowsOutline else RemovedColumns
+
 in
     Result
