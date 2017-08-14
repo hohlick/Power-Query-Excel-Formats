@@ -8,7 +8,14 @@ As Power Query import data from Excel spreadsheet into a table structure, then r
 
 ## Realisation
 
-    fnGetRowsOutline(FullPath as text, optional SheetNames as any, optional AddOutlinesToData as nullable logical) as table
+    fnGetRowsOutline(
+        FullPath as text, 
+        optional SheetNames as any, 
+        optional AddOutlinesToData as nullable logical
+        ) as table
+
+### Code:
+[fnGetRowsOutline](../RowsOutline/fnGetRowsOutline.pq)
 
 ### Description:
 
@@ -21,8 +28,6 @@ Based on `Excel.Workbook` built-in function, but adds (one or two, depending on 
     * `RowIndex` as number, (zero-based) - an index to further relations to [Data] column contents
     * `outlineLevel` as Int64.Type
 * `DataWithOutline` column, where `outlineLevel` column is added as the first column to raw sheet data (`Excel.Workbook` `[Data]` column).
-
-Both functions (`Excel.Workbook` and `fnGetRowsOutline`) when performing sheets analyzis use UsedRange property (or `dimension` property in SpreadsheetML schema)
 
 ### Function arguments:
 
@@ -68,5 +73,7 @@ If null or not provided then `true`
 * null
 
 ### Notes:
-Included copy of [Mark White's UnZip function](../UnZip.pq).
+1. Included copy of [Mark White's UnZip function](../UnZip.pq).
+2. Both functions (`Excel.Workbook` and `fnGetRowsOutline`) return cells range from worksheet, based on `UsedRange` VBA property (or `dimension` sheet atteribute in SpreadsheetML schema).
+
 
