@@ -6,6 +6,8 @@
 
 As Power Query import data from Excel spreadsheet into a table structure, then row outline levels could be stored as additional column for such tables.
 
+***
+
 ## Realisation
 
     fnGetRowsOutline(
@@ -13,6 +15,8 @@ As Power Query import data from Excel spreadsheet into a table structure, then r
         optional SheetNames as any, 
         optional AddOutlinesToData as nullable logical
         ) as table
+
+Sample is [there](#sample)
 
 ### Code:
 [ExcelWorksheetsRowOutlines.pq](../RowsOutline/ExcelWorksheetsRowOutlines.pq)
@@ -45,7 +49,7 @@ Based on `Excel.Workbook` built-in function, but adds (one or two, depending on 
    
 *Description*: text or list of worksheet names to extract. **Optional**
    
-   If argument: 
+   If argument: ExcelWorksheetsRowOutlines_TesterDataSet.xlsx 
    
    - not provided,
    - or null,
@@ -72,8 +76,17 @@ If null or not provided then `true`
 * false, 
 * null
 
-### Notes:
+***
+
+## Notes:
 1. Included copy of [Mark White's UnZip function](../UnZip.pq).
 2. Both functions (`Excel.Workbook` and `ExcelWorksheetsRowOutlines`) return cells range from worksheet, based on `UsedRange` VBA property (or `dimension` sheet atteribute in SpreadsheetML schema).
 
+***
 
+## [Sample](#sample)
+There two files:
+* [`ExcelWorksheetsRowOutlines_TesterDataSet.xlsx`](ExcelWorksheetsRowOutlines_TesterDataSet.xlsx), which contains simple workbook with some rows grouping
+* [`ExcelWorksheetsRowOutlines_Tester.xlsx`](ExcelWorksheetsRowOutlines_Tester.xlsx), which contains code and several queries to show how function works
+
+Download both files, place them somewhere, and write down a full path to the `ExcelWorksheetsRowOutlines_TesterDataSet.xlsx` in the `ExcelWorksheetsRowOutlines_Tester.xlsx ` (see parameter table inside), then refresh loaded query. You can also look on the other possible function results in Power Query Editor.
