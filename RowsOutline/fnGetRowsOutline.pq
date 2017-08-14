@@ -1,27 +1,34 @@
 /*
-// Author: Maxim Zelensky
-// Date Updated: 2017-08-14
-// Purpose: Get outline levels of rows from Excel worksheets in Power Query.
-// Note: Included copy of Mark White's UnZip function.
+	Author: Maxim Zelensky, info@excel-inside.pro, http://excel-inside.pro
+	Date Updated: 2017-08-14
+	Purpose: Get outline levels of rows from Excel worksheets in Power Query.
+	Note: Included copy of Mark White's UnZip function.
 
 // Parameters:
 
-// FullPath - text, full path to workbook. Mandatory
-  Example: "C:\PQ\Outline\test2.xlsx"
+// FullPath
+	Type: text, 
+	Description: full path to workbook. Mandatory
+	Example: "C:\PQ\Outline\test2.xlsx"
   
-// SheetNames - text or list (of worksheet names). Optional
-    If argument: 
-        not provided, 
-        or null,
-        or empty list {}, 
-        or argument type is different from text/list, 
-    then all worksheets from workbook will be analyzed.
+// SheetNames
+	Type: any
+	Description: text or list of worksheet names. Optional
+		If argument: 
+			not provided, 
+			or null,
+			or empty list {}, 
+			or argument type is different from text/list, 
+		then all worksheets from workbook will be analyzed.
     
 	Example: {"Sheet1", "Sheet3"}
     Example: "Sheet1"
     
-// AddOutlinesToData - logical, defines whether add outlineLevel column to the sheet [Data] table. Optional
-    If null or not provided then = true
+// AddOutlinesToData
+	Type: nullable logical
+	Description: defines whether add outlineLevel column to the sheet [Data] table. Optional
+    	If null or not provided then = true
+	Example: true, false, null
 
 */
 
