@@ -167,17 +167,17 @@ UnZipped = Table.Buffer(fnUnZip(File.Contents(FullPath))),
 // invoke RowsOutline function to get separate index+outlineLevel table
     AddOutlineTable = Table.AddColumn(MergedRelationsTarget, "RowsOutline", each fnRowsOutline([#"Attribute:Target"]), type table),
 
-// Clean table
-    RemovedColumns = Table.RemoveColumns(AddOutlineTable,{"Index", "Attribute:Id", "Attribute:Target", "Attribute:name", "Attribute:sheetId", "Attribute:id"}),
-
 // join [AddOutlineTable] and [Data] by rows index
-    AddedRowsOutline = Table.AddColumn(RemovedColumns, "DataWithOutline", each Table.RemoveColumns(Table.Join([RowsOutline], {"Index"}, Table.AddIndexColumn([Data],"Index"), {"Index"}), {"Index"}), type table),
+    AddedRowsOutline = Table.AddColumn(AddOutlineTable, "DataWithOutline", each Table.RemoveColumns(Table.Join([RowsOutline], {"Index"}, Table.AddIndexColumn([Data],"Index"), {"Index"}), {"Index"}), type table),
 
 // add outlines to Data or not
-    Result = if AddOutlinesToData or AddOutlinesToData = null then AddedRowsOutline else RemovedColumns,
+    Result = if AddOutlinesToData or AddOutlinesToData = null then AddedRowsOutline else AddOutlineTable,
     
 // sort order
-	Sorted = Table.Sort(Result,{{"Index", Order.Ascending}})
+    Sorted = Table.Sort(Result,{{"Index", Order.Ascending}}),
+
+// Clean table
+    RemovedColumns = Table.RemoveColumns(Sorted, {"Index", "Attribute:Id", "Attribute:Target", "Attribute:name", "Attribute:sheetId", "Attribute:id"})
 
 in
-    Sorted
+    RemovedColumns
