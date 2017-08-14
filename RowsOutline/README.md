@@ -22,7 +22,6 @@ Sample is [there](#sample)
 [ExcelWorksheetsRowOutlines.pq](../RowsOutline/ExcelWorksheetsRowOutlines.pq)
 
 ### Description:
-
 Returns spreadsheets (not tables) data from Excel workbook (xlsx or xlsm tested), adding information about rows outline levels.
 As rows outline levels is the property of rows (not cells), it is possible to return outline level for each used row.
 
@@ -84,7 +83,7 @@ If null or not provided then `true`
 
 ***
 
-## [Sample](#sample)
+## Sample
 There two files:
 * [`ExcelWorksheetsRowOutlines_TesterDataSet.xlsx`](ExcelWorksheetsRowOutlines_TesterDataSet.xlsx), which contains simple workbook with some rows grouping
 * [`ExcelWorksheetsRowOutlines_Tester.xlsx`](ExcelWorksheetsRowOutlines_Tester.xlsx), which contains code and several queries to show how function works
