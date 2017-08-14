@@ -158,8 +158,8 @@ UnZipped = Table.Buffer(fnUnZip(File.Contents(FullPath))),
         in
             Removed,
 
-// merge relations id (via sheets index)
-    MergedRelationsID = Table.Join(FilteredByNames, {"Index"}, workbook, {"Attribute:sheetId"}), 
+// merge relations id (via sheets name)
+    MergedRelationsID = Table.Join(FilteredByNames, {"Name"}, workbook, {"Attribute:name"}), 
 
 // join workbook relations
     MergedRelationsTarget = Table.Join(MergedRelationsID,{"Attribute:id"},workbook_rels,{"Attribute:Id"}),
@@ -174,7 +174,10 @@ UnZipped = Table.Buffer(fnUnZip(File.Contents(FullPath))),
     AddedRowsOutline = Table.AddColumn(RemovedColumns, "DataWithOutline", each Table.RemoveColumns(Table.Join([RowsOutline], {"Index"}, Table.AddIndexColumn([Data],"Index"), {"Index"}), {"Index"}), type table),
 
 // add outlines to Data or not
-    Result = if AddOutlinesToData or AddOutlinesToData = null then AddedRowsOutline else RemovedColumns
+    Result = if AddOutlinesToData or AddOutlinesToData = null then AddedRowsOutline else RemovedColumns,
+    
+// sort order
+	Sorted = Table.Sort(Result,{{"Index", Order.Ascending}})
 
 in
-    Result
+    Sorted
