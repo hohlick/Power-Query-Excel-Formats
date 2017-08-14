@@ -74,6 +74,6 @@ If null or not provided then `true`
 
 ### Notes:
 1. Included copy of [Mark White's UnZip function](../UnZip.pq).
-2. Both functions (`Excel.Workbook` and `fnGetRowsOutline`) return cells range from worksheet, based on `UsedRange` VBA property (or `dimension` sheet atteribute in SpreadsheetML schema).
+2. Both functions (`Excel.Workbook` and `ExcelWorksheetsRowOutlines`) return cells range from worksheet, based on `UsedRange` VBA property (or `dimension` sheet atteribute in SpreadsheetML schema).
 
 
