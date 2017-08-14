@@ -1,23 +1,72 @@
 # Rows Outline
 
-Easiest part :)
+*Easiest part* :)
 
 ## Idea
 
 As Power Query import data from Excel spreadsheet into a table structure, then row outline levels could be stored as additional column for such tables.
 
-### Mandatory arguments
+## Realisation
 
-* `FullPath` as text - to UnZip XLSX structure and gain access to SpreadsheetML elements.
-* `SheetName` as text - to get a specific sheet data directly or via iteration.
+    fnGetRowsOutline(FullPath as text, optional SheetNames as any, optional AddOutlinesToData as nullable logical) as table
 
-### Optional arguments
+### Description:
 
-* `separate` as nullable logical - to select output type.
+Returns spreadsheets (not tables) data from Excel workbook (xlsx or xlsm tested), adding information about rows outline levels.
+As rows outline levels is the property of rows (not cells), it is possible to return outline level for each used row.
 
-If `true`, function output is a table of two columns:
-    * `RowIndex` as number, (zero-based)
+Based on `Excel.Workbook` built-in function, but adds (one or two, depending on the third argument) additional columns to its result:
+
+* `RowsOutline` column with a table of two columns: 
+    * `RowIndex` as number, (zero-based) - an index to further relations to [Data] column contents
     * `outlineLevel` as Int64.Type
+* `DataWithOutline` column, where `outlineLevel` column is added as the first column to raw sheet data (`Excel.Workbook` `[Data]` column).
+
+Both functions (`Excel.Workbook` and `fnGetRowsOutline`) when performing sheets analyzis use UsedRange property (or `dimension` property in SpreadsheetML schema)
+
+### Function arguments:
+
+#### `FullPath`
+
+*Type:* text,
+
+*Description:* full path to workbook. **Mandatory**
+
+*Example:* "C:\PQ\Outline\test2.xlsx"
   
-If `false`, function will add such columns to an imported spreadsheet
-Default value is `true` *(??)*
+#### `SheetNames`
+
+*Type*: any
+   
+*Description*: text or list of worksheet names to extract. **Optional**
+   
+   If argument: 
+   
+   - not provided,
+   - or null,
+   - or empty list {}, 
+   - or argument type is different from text/list, 
+
+then all worksheets from workbook will be analyzed.
+    
+*Example*: 
+* {"Sheet1", "Sheet3"}
+* "Sheet1"
+
+
+#### `AddOutlinesToData`
+
+*Type*: nullable logical
+
+*Description*: defines whether add outlineLevel column to the sheet [Data] table. **Optional**
+
+If null or not provided then `true`
+        
+*Example*: 
+* true, 
+* false, 
+* null
+
+### Notes:
+Included copy of [Mark White's UnZip function](../UnZip.pq).
+
