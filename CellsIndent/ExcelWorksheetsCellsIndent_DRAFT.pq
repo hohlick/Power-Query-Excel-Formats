@@ -1,35 +1,37 @@
-// Draft version 15 Aug 2017
+// Draft version 17 Aug 2017
 
 // getIndents
 let
 // WSrel
 WSrel = "worksheets/sheet1.xml", // meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 // FullPath
-FullPath = "\test2.xlsx", // meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+FullPath = "W:\Личные папки\m.zelenskiy\PQ\Outline\test2.xlsx", // meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 // SheetNames
 //SheetNames = "Sheet1", // meta [IsParameterQuery=true, Type="Any", IsParameterQueryRequired=false]
+
+/*
+// (FullPath as text, optional SheetNames as any, optional ColumnNumber as nullable Int64.Type, optional AddToData as nullable logical) as table =>
+
+    Mandatory:
+	FullPath: full path (as text) to file (including filename) without quotes. Example: C:\PQ\test2.xlsx
+
+    Optional:
+	SheetNames: single sheet name (as text) or list of sheet names. Example: "Sheet1", {"Sheet1", "Sheet3"}. If not provided then all sheets will be analyzed.
+
+	ColumnNumber: single (as Int64.Type) number of column from cell indents will be pulled.
+	If not provided or null or not number, then all columns analyzed.
+	Further improvements: (as any) Column numbers list, column name, column range (numbers, names).
+
+	AddToData: flag, true/null to add columns with indents to Data table as first columns, false - separate table only.
+*/
+
 
 ////////////
 // COMMON //
 ////////////
 
-
-Source = Excel.Workbook(File.Contents(FullPath), false, true), 
-  
- // leave sheets only 
-     FilteredSheets = Table.SelectRows(Source, each ([Kind] = "Sheet")), 
-  
- // sheets in PQ initially in appearance order, i.e. sheets index (despite visibility) 
-     AddSheetsIndex = Table.AddIndexColumn(FilteredSheets, "Index", 1, 1), 
-  
- // check SheetNames parameter 
-     SheetNames = if SheetNames is text then {SheetNames} else if SheetNames is list then SheetNames else null, 
-  
- // filter sheets by name if provided 
-     FilteredByNames = if SheetNames = null or List.IsEmpty(SheetNames) then AddSheetsIndex else Table.SelectRows(AddSheetsIndex, each List.Contains(SheetNames, [Name])), 
-
-UnZip =
-(ZIPFile) => 
+ // Unzip function
+UnZip = (ZIPFile) => 
 let
     Header = BinaryFormat.Record([
         MiscHeader = BinaryFormat.Binary(14),
@@ -67,19 +69,34 @@ let
 in
     Table.FromRecords(Entries),
 
-
-UnZipped =
-let
+ // Buffered unzipped file
+    UnZipped = Table.Buffer(UnZip(File.Contents(FullPath))),
+/* let
     UnZippedFile = Table.Buffer(UnZip(File.Contents(FullPath)))
 in
     UnZippedFile,  
+*/
+
+ // get workbook contents
+    Source = Excel.Workbook(File.Contents(FullPath), false, true), 
+  
+ // leave sheets only 
+    FilteredSheets = Table.SelectRows(Source, each ([Kind] = "Sheet")), 
+  
+ // sheets in PQ initially in appearance order, i.e. sheets index (despite visibility) 
+    AddSheetsIndex = Table.AddIndexColumn(FilteredSheets, "Index", 1, 1), 
+  
+ // check SheetNames parameter 
+    SheetNames = if SheetNames is text then {SheetNames} else if SheetNames is list then SheetNames else null, 
+  
+ // filter sheets by name if provided 
+    FilteredByNames = if SheetNames = null or List.IsEmpty(SheetNames) then AddSheetsIndex else Table.SelectRows(AddSheetsIndex, each List.Contains(SheetNames, [Name])), 
 
  // relations id table for sheets 
-     workbook = 
+    workbook = 
           let 
-             Source = UnZipped, 
-             Content = Source{[FileName ="xl/workbook.xml"]}[Content], 
-             ImportedXML = Xml.Tables(Content,null,TextEncoding.Utf8), 
+             Content = UnZipped{[FileName ="xl/workbook.xml"]}[Content], 
+             ImportedXML = Xml.Tables(Content, null, TextEncoding.Utf8), 
              sheetsTable = ImportedXML{[Name = "sheets"]}[Table], 
              sheetTable = sheetsTable{[Name = "sheet"]}[Table], 
              ExpandedRel = Table.ExpandTableColumn(sheetTable, "http://schemas.openxmlformats.org/officeDocument/2006/relationships", {"Attribute:id"}, {"Attribute:id"}), 
@@ -88,11 +105,11 @@ in
              typed, 
   
  // sheets relations id to XML target files 
-     workbook_rels =  
+    workbook_rels =  
          let 
              Source = UnZipped, 
              Filtered = Table.SelectRows(Source, each [FileName]="xl/_rels/workbook.xml.rels"), 
-             GetXML = Table.TransformColumns(Filtered, {"Content", each Xml.Tables(_,null,65001)}), 
+             GetXML = Table.TransformColumns(Filtered, {"Content", each Xml.Tables(_, null, TextEncoding.Utf8)}), 
              XMLContent = GetXML{0}[Content]{[Name="Relationship"]}[Table], 
              FilteredSheetsRel = Table.SelectRows(XMLContent, each [#"Attribute:Type"] = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"), 
              Removed = Table.RemoveColumns(FilteredSheetsRel,{"Attribute:Type"}) 
@@ -100,14 +117,16 @@ in
              Removed, 
   
  // merge relations id (via sheets name) 
-     MergedRelationsID = Table.Join(FilteredByNames, {"Name"}, workbook, {"Attribute:name"}),  
+    MergedRelationsID = Table.Join(FilteredByNames, {"Name"}, workbook, {"Attribute:name"}),  
   
- // join workbook relations 
-     MergedRelationsTarget = Table.Join(MergedRelationsID,{"Attribute:id"},workbook_rels,{"Attribute:Id"}), 
+ // join workbook relations links (via relation id) to the Source
+    MergedRelationsTarget = Table.Join(MergedRelationsID,{"Attribute:id"},workbook_rels,{"Attribute:Id"}), 
+
+ // there need to call inner function
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+ // Parse A1 links to R1C1
 fnA1toR1C1 =
     (dim as text) => let
     Source = Text.Upper(dim),
@@ -136,12 +155,12 @@ in
     Result,
 
 
-//fnGetIndents = (WSRel)
+// later: fnGetIndents = (WSrel)
 
 xfIndents =
 let
     styles = UnZipped{[FileName = "xl/styles.xml"]}[Content],
-    ToXML = Xml.Tables(styles, null, 65001),
+    ToXML = Xml.Tables(styles, null, TextEncoding.Utf8),
     cellXfs = ToXML{[Name="cellXfs"]}[Table],
     xf = cellXfs{0}[xf],
     #"Added Index" = Table.AddIndexColumn(xf, "styleID", 0, 1),
@@ -154,16 +173,17 @@ in
     #"Removed Columns",
 
 OneSheet = 
+// here we pass relation links
 let
     Sheet = UnZipped{[FileName="xl/" & WSrel]}[Content],
-    XMLContent = Xml.Tables(Sheet, null, 65001)
+    XMLContent = Xml.Tables(Sheet, null, TextEncoding.Utf8)
 in
     XMLContent,
 
 Cells =
 let
 //    Sheet = UnZipped{[FileName="xl/" & WSrel]}[Content],
-//    XMLContent = Xml.Tables(Sheet, null, 65001),
+//    XMLContent = Xml.Tables(Sheet, null, TextEncoding.Utf8),
     Table = OneSheet{[Name="sheetData"]}[Table],
     Rows = Table{[Name="row"]}[Table],
     RemovedColumns = Table.SelectColumns(Rows,{"c", "Attribute:r"}),
@@ -189,6 +209,7 @@ let
 in
     dimR1C1,
 
+// Map indents to columns/rows
 IndentsMap =
 let
     Source = Cells,
