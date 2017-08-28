@@ -47,7 +47,7 @@ After UnZip the XML files (`binary` type) from workbook structure become availab
     - extended rows state (visibility, spans, outlines, collapsed, etc.),
     - extended columns state.
 2. Cell indents and alignment
-3. Cell number formats
+3. [Cell number formats]((../../tree/master/NumberFormats)
 4. Cell color
 5. Top-left rows and columns addition to UsedRange/dimension (see this [post about UsedRange pitfall](http://excel-inside.pro/blog/2017/05/23/excel-sheet-as-a-source-to-power-query-and-power-bi-a-pitfall-of-usedrange/))
 6. Additional formats, conditional formats and further development
