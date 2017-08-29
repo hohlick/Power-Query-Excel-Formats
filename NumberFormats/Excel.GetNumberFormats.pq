@@ -214,14 +214,14 @@ SheetsWithFormats =
 	    DataWithFormats = Table.AddColumn(
 			AddSheetRef, 
 			"DataWithFormats", 
-			each Table.RemoveColumns(
+			each Table.RemoveColumns(Table.Sort(
 				Table.Join(
 					fnLinkFormatsToCells([Index]), 
 					{"rowIndex"}, 
 					Table.AddIndexColumn([Data], "Index", 0, 1), 
 					{"Index"}, 
 					JoinKind.RightOuter
-					), 
+					), {{"Index", Order.Ascending}}),
 				{"rowIndex", "Index"}
 			)
 		),
