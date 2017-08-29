@@ -118,6 +118,7 @@ fnColumnA1Number =
 
     UnZipped = Table.Buffer(UnZip(File.Contents(FullPath))),
 
+
 // fnLinkFormatsToCells
 fnLinkFormatsToCells = (SheetRef) as table =>
 	let
@@ -170,9 +171,11 @@ fnLinkFormatsToCells = (SheetRef) as table =>
 	
 		// LinkFormatsToCells itself 
 	    Source = Xml.Tables(UnZipped{[FileName = SheetRef]}[Content]),
-	
-	    dim = Source{[Name="dimension"]}[Table][#"Attribute:ref"]{0},
-	    TLC = fnColumnA1Number(Text.Split(dim, ":"){0}),
+
+                // sheet used range top-left cell
+            dim = Source{[Name="dimension"]}[Table][#"Attribute:ref"]{0},
+            TLC = fnColumnA1Number(Text.Split(dim, ":"){0}),	
+
 	    GetRows = Source{[Name="sheetData"]}[Table],
 	    GR2 =Table.SelectColumns(GetRows[Table]{0}, {"c", "Attribute:r"}),
 	    Renamed = Table.RenameColumns(GR2, {{"Attribute:r", "row"}}),
@@ -194,7 +197,7 @@ fnLinkFormatsToCells = (SheetRef) as table =>
 	                {}) 
 	        else Sorted
 	in
-    	Table.RenameColumns(Result,{{"formatCode", "Column" & Text.From(ColumnN) & ".NumberFormat"}}),
+    	Table.RenameColumns(Result,{{"formatCode", "Column" & Text.From(ColumnN-TLC[Column]+1) & ".NumberFormat"}}),
 
 // SourceSheets
 SourceSheets = 
@@ -224,7 +227,7 @@ SheetsWithFormats =
 		),
 	    ColumnFormatsOnly = Table.AddColumn(
 			AddSheetRef, 
-			"Column" & Text.From(ColumnN) &".Formats", 
+			"NumberFormats", 
 			each fnLinkFormatsToCells([Index])
 		)
 	in
