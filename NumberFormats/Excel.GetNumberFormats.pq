@@ -236,24 +236,47 @@ SheetsWithFormats =
 Result = if Table.IsEmpty(SourceSheets) then SourceSheets else SheetsWithFormats
 in 
     Result,
-Description = [
-    Documentation.Name =  "Excel.GetNumberFormats", 
-    Documentation.Description = "Get cell number formats from specified Excel workbook, worksheet and column" , 
-    Documentation.LongDescription =  "<p>Get cell number formats from specified Excel workbook, worksheet and column. The output is similar to <code>Excel.Workbook</code>, but additional column will be added</p>
-        <p><b>Arguments:</b></p>
-        <p><b><code>FullPath</code></b> <code>(text)</code>: full *.XLSX/M file path (for example, <code>""C:\Temp\Test.xlsx""</code>)<br>
-        <b><code>SheetName</code></b> <code>(text)</code>: single worksheet name to get formats from (for example, <code>""Sheet1""</code>, <code>""Report Table""</code> etc.)<br>
-        <b><code>ColumnN</code></b> <code>(whole number)</code>: <i>optional</i> column number in R1C1 notation (column C = 3, column D = 5 etc.). Default is 1<br>
-        <b><code>AddToTable</code></b> <code>(logical)</code>: <i>optional</i> selector, defines whether to add column formats directly to datasheet table (<code>true</code>) or as separate table (<code>false</code>). Default is <code>true</code></p>
-		<p>Part of the GitHub project https://github.com/hohlick/Power-Query-Excel-Formats</p>", 
-    Documentation.Category = "Accessing data functions", 
-    Documentation.Source = "local", 
-    Documentation.Author = "Maxim Zelensky: http://Excel-Inside.pro", 
-    Documentation.Examples = {
-        [Description =  "Get fromats from 1st column (""A"") on <code>Sheet1</code> from file located at <code>C:\Temp\Test.xlsx</code> and add them to data table" , 
-        Code = "ExcelGetNumberFormats(""C:\Temp\Test.xlsx"", ""Sheet1"", 1)", 
-        Result = "Formats from column A from Sheet1 worksheet added to Sheet1 data table as ""Column1.NumberFormat"" column, whole result placed in ""DataWithFormats"" column"]
-        }
-    ] 
+    
+ExcelGetNumberFormatsType = type function (
+    FullPath as (type text meta [
+        Documentation.FieldCaption = "Full Path to the workbook",
+        Documentation.FieldDescription = "Full path to the Excel XLSX/M workbook",
+        Documentation.SampleValues = {"C:\Temp\Test.xlsx"}
+    ]),
+    SheetName as (type text meta [
+        Documentation.FieldCaption = "Sheet name",
+        Documentation.FieldDescription = "Name of the single worksheet to get formats from",
+	Documentation.SampleValues = {"Sheet1", "Sample Sheet", "My Report"}
+    ]),
+    optional ColumnN as (type nullable number meta [
+	Documentation.FieldCaption = "Column number",
+        Documentation.FieldDescription = "Column number in R1C1 notation (A =1, D = 4 etc.)",
+	Documentation.SampleValues = {1, 4, 5}
+    ]),
+    optional AddToTable as (type nullable logical meta [
+	Documentation.FieldCaption = "Add parsed formats as column to data table",
+        Documentation.FieldDescription = "Add parsed formats to worksheet data table or show formats as separate table",
+        Documentation.AllowedValues = { true, false }
+    ]))
+    as table meta [
+        Documentation.Name =  "Excel.GetNumberFormats", 
+        Documentation.Description = "Get cell number formats from specified Excel workbook, worksheet and column" , 
+        Documentation.LongDescription =  "<p>Get cell number formats from specified Excel workbook, worksheet and column. The output is similar to <code>Excel.Workbook</code>, but additional column will be added</p>
+            <p><b>Arguments:</b></p>
+            <p><b><code>FullPath</code></b> <code>(text)</code>: full *.XLSX/M file path (for example, <code>""C:\Temp\Test.xlsx""</code>)<br>
+            <b><code>SheetName</code></b> <code>(text)</code>: single worksheet name to get formats from (for example, <code>""Sheet1""</code>, <code>""Report Table""</code> etc.)<br>
+            <b><code>ColumnN</code></b> <code>(whole number)</code>: <i>optional</i> column number in R1C1 notation (column C = 3, column D = 5 etc.). Default is 1<br>
+            <b><code>AddToTable</code></b> <code>(logical)</code>: <i>optional</i> selector, defines whether to add column formats directly to datasheet table (<code>true</code>) or as separate table (<code>false</code>). Default is <code>true</code></p>
+	    <p>Part of the GitHub project https://github.com/hohlick/Power-Query-Excel-Formats</p>", 
+        Documentation.Category = "Accessing data functions", 
+        Documentation.Source = "local", 
+        Documentation.Author = "Maxim Zelensky: http://Excel-Inside.pro", 
+        Documentation.Examples = {
+            [Description =  "Get fromats from 1st column (""A"") on <code>Sheet1</code> from file located at <code>C:\Temp\Test.xlsx</code> and add them to data table" , 
+            Code = "ExcelGetNumberFormats(""C:\Temp\Test.xlsx"", ""Sheet1"", 1)", 
+            Result = "Formats from column A from Sheet1 worksheet added to Sheet1 data table as ""Column1.NumberFormat"" column, whole result placed in ""DataWithFormats"" column"]
+            }
+        ] 
+
 in 
-    Value.ReplaceType(functionbody, Value.ReplaceMetadata(Value.Type(functionbody), Description))
+    Value.ReplaceType(functionbody, ExcelGetNumberFormatsType)
