@@ -40,6 +40,7 @@ After UnZip the XML files (`binary` type) from workbook structure become availab
 
 ---
 ## Work plan
+*(released projects have hyperlinks)*
 
 1. Sheet structure: 
     - [rows outline levels](../../tree/master/RowsOutline),
